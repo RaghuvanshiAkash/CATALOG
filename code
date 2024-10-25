@@ -5,12 +5,14 @@
 #include <sstream>
 #include <string>
 #include <json/json.h> 
-long long decode_y(int base, const std::string &encoded_value) {
+long long decode_y(int base, const std::string &encoded_value)
+{
     return std::stoll(encoded_value, 0, base);
 }
 
 
-long long lagrange_interpolation(const std::vector<std::pair<int, long long>>& points) {
+long long lagrange_interpolation(const std::vector<std::pair<int, long long>>& points) 
+{
     int n = points.size();
     long long result = 0;
 
@@ -35,12 +37,14 @@ long long lagrange_interpolation(const std::vector<std::pair<int, long long>>& p
 }
 
 
-long long find_secret(const std::string &json_input) {
+long long find_secret(const std::string &json_input) 
+{
     Json::Value jsonData;
     Json::Reader reader;
 
     
-    if (!reader.parse(json_input, jsonData)) {
+    if (!reader.parse(json_input, jsonData))
+{
         std::cerr << "Failed to parse JSON." << std::endl;
         return -1;
     }
@@ -57,7 +61,7 @@ long long find_secret(const std::string &json_input) {
         std::string value_str = jsonData[std::to_string(i)]["value"].asString();
         int base = std::stoi(base_str);
         long long decoded_y = decode_y(base, value_str);
-        points.push_back({i, decoded_y});  // x = i, y = decoded_y
+        points.push_back({i, decoded_y}); 
     }
 
     
@@ -71,7 +75,7 @@ long long find_secret(const std::string &json_input) {
 
 
 int main() {
-    // Example JSON input
+   
     std::string json_input = R"({
         "keys": {
             "n": 4,
