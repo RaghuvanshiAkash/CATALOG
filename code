@@ -1,0 +1,106 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <map>
+#include <sstream>
+#include <string>
+#include <json/json.h> 
+long long decode_y(int base, const std::string &encoded_value) {
+    return std::stoll(encoded_value, 0, base);
+}
+
+
+long long lagrange_interpolation(const std::vector<std::pair<int, long long>>& points) {
+    int n = points.size();
+    long long result = 0;
+
+    
+    for (int i = 0; i < n; ++i) {
+        long long xi = points[i].first;
+        long long yi = points[i].second;
+
+        
+        long long term = yi;
+        for (int j = 0; j < n; ++j) {
+            if (i != j) {
+                long long xj = points[j].first;
+                term *= (0 - xj);           
+                term /= (xi - xj);           
+            }
+        }
+        result += term;
+    }
+
+    return result;
+}
+
+
+long long find_secret(const std::string &json_input) {
+    Json::Value jsonData;
+    Json::Reader reader;
+
+    
+    if (!reader.parse(json_input, jsonData)) {
+        std::cerr << "Failed to parse JSON." << std::endl;
+        return -1;
+    }
+
+    
+    int n = jsonData["keys"]["n"].asInt();
+    int k = jsonData["keys"]["k"].asInt();
+
+    std::vector<std::pair<int, long long>> points;
+
+   
+    for (int i = 1; i <= n; ++i) {
+        std::string base_str = jsonData[std::to_string(i)]["base"].asString();
+        std::string value_str = jsonData[std::to_string(i)]["value"].asString();
+        int base = std::stoi(base_str);
+        long long decoded_y = decode_y(base, value_str);
+        points.push_back({i, decoded_y});  // x = i, y = decoded_y
+    }
+
+    
+    points.resize(k);
+
+    
+    long long secret = lagrange_interpolation(points);
+
+    return secret;
+}
+
+
+int main() {
+    // Example JSON input
+    std::string json_input = R"({
+        "keys": {
+            "n": 4,
+            "k": 3
+        },
+        "1": {
+            "base": "10",
+            "value": "4"
+        },
+        "2": {
+            "base": "2",
+            "value": "111"
+        },
+        "3": {
+            "base": "10",
+            "value": "12"
+        },
+        "4": {
+            "base": "4",
+            "value": "213"
+        }
+    })";
+
+   
+    long long secret = find_secret(json_input);
+
+    
+    std::cout << "The secret (constant term) is: " << secret << std::endl;
+
+    return 0;
+}
+
